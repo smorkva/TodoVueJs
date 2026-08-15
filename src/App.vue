@@ -14,13 +14,13 @@
         @save="storeTask"
         @cancel="cancelEditTask"
       />
-      <TaskAddComponent 
+      <TaskAddComponent
         v-else
         v-model="newTask"
         @save="storeTask"
        />
     </div>
-    
+
     <TaskListComponent
       :tasks="tasks"
       @edit="startEditTask"
@@ -29,79 +29,68 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Emit, Vue } from 'vue-property-decorator';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import HeaderComponent from './components/HeaderComponent.vue';
 import TaskListComponent from './components/TaskListComponent.vue';
 import { task as taskModel } from './models/task';
 import TaskAddComponent from './components/TaskAddComponent.vue';
 import TaskEditComponent from './components/TaskEditComponent.vue';
 
-@Component({
-  components: {
-    HeaderComponent,
-    TaskListComponent,
-    TaskAddComponent,
-    TaskEditComponent,
-  },
-})
+const tasks = ref<taskModel[]>([]);
+const editedTask = ref<taskModel | null>(null);
+const editedTaskTitle = ref("");
+const newTask = ref("");
+const message = ref("");
+let lastId = 0;
 
-export default class App extends Vue {
-  tasks: taskModel[] = [];
-  editedTask: taskModel | null = null;
-  editedTaskTitle = "";
-  newTask = "";
-  message = "";
-  lastId = 0;
-
-  mounted() {
-    const jsonItems = localStorage.getItem("items");
-    if (jsonItems) {
-      const tasks = JSON.parse(jsonItems);
-      if (tasks) {
-        this.tasks = tasks;
-        this.lastId = this.tasks.reduce((prev, current) => {
-          return prev < current.id ? current.id : prev;
-        }, 0)
-      }
+onMounted(() => {
+  const jsonItems = localStorage.getItem("items");
+  if (jsonItems) {
+    const items = JSON.parse(jsonItems);
+    if (items) {
+      tasks.value = items;
+      lastId = tasks.value.reduce((prev, current) => {
+        return prev < current.id ? current.id : prev;
+      }, 0)
     }
   }
+});
 
-  @Emit() store() {
-    localStorage.setItem("items", JSON.stringify(this.tasks));
+function store() {
+  localStorage.setItem("items", JSON.stringify(tasks.value));
+}
+function startEditTask(task: taskModel) {
+  message.value = "";
+  editedTask.value = task
+  editedTaskTitle.value = task.title;
+}
+function cancelEditTask() {
+  editedTask.value = null;
+}
+function storeTask() {
+  if (editedTask.value) {
+    // modify task
+    editedTask.value.title = editedTaskTitle.value;
+    message.value = "Text edited successfully";
+    editedTask.value = null;
+  } else {
+    // create new task
+    lastId++;
+    tasks.value.push({
+      id: lastId,
+      title: newTask.value
+    });
+    newTask.value = "";
+    message.value = "";
   }
-  @Emit() startEditTask(task: taskModel) {
-    this.message = "";
-    this.editedTask = task
-    this.editedTaskTitle = task.title;
-  }
-  @Emit() cancelEditTask() {
-    this.editedTask = null;
-  }
-  @Emit() storeTask() {
-    if (this.editedTask) {
-      // modify task
-      this.editedTask.title = this.editedTaskTitle;
-      this.message = "Text edited successfully";
-      this.editedTask = null;
-    } else {
-      // create new task
-      this.lastId++;
-      this.tasks.push({
-        id: this.lastId,
-        title: this.newTask
-      });
-      this.newTask = "";
-      this.message = "";
-    }
-    this.store();
-  }
-  @Emit() deleteTask(task: taskModel) {
-    this.message = "";
-    const index = this.tasks.indexOf(task);
-    this.tasks.splice(index, 1);
-    this.store();
-  }
+  store();
+}
+function deleteTask(task: taskModel) {
+  message.value = "";
+  const index = tasks.value.indexOf(task);
+  tasks.value.splice(index, 1);
+  store();
 }
 </script>
 
