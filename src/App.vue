@@ -33,7 +33,7 @@
 import { Component, Emit, Vue } from 'vue-property-decorator';
 import HeaderComponent from './components/HeaderComponent.vue';
 import TaskListComponent from './components/TaskListComponent.vue';
-import { task as taskModel } from './models/task';
+import { Task } from './models/task';
 import TaskAddComponent from './components/TaskAddComponent.vue';
 import TaskEditComponent from './components/TaskEditComponent.vue';
 
@@ -47,8 +47,8 @@ import TaskEditComponent from './components/TaskEditComponent.vue';
 })
 
 export default class App extends Vue {
-  tasks: taskModel[] = [];
-  editedTask: taskModel | null = null;
+  tasks: Task[] = [];
+  editedTask: Task | null = null;
   editedTaskTitle = "";
   newTask = "";
   message = "";
@@ -70,7 +70,7 @@ export default class App extends Vue {
   @Emit() store() {
     localStorage.setItem("items", JSON.stringify(this.tasks));
   }
-  @Emit() startEditTask(task: taskModel) {
+  @Emit() startEditTask(task: Task) {
     this.message = "";
     this.editedTask = task
     this.editedTaskTitle = task.title;
@@ -96,7 +96,7 @@ export default class App extends Vue {
     }
     this.store();
   }
-  @Emit() deleteTask(task: taskModel) {
+  @Emit() deleteTask(task: Task) {
     this.message = "";
     const index = this.tasks.indexOf(task);
     this.tasks.splice(index, 1);
