@@ -16,11 +16,11 @@
 
 <script lang="ts">
 	import { Component, Prop, Vue } from 'vue-property-decorator';
-	import { task as taskModel } from '../models/task';
-	
+	import { Task as TaskModel } from '../models/task';
+
 	@Component
 	export default class Task extends Vue {
-		@Prop() public task!: taskModel;
+		@Prop() public task!: TaskModel;
 	}
 	</script>
 

@@ -1,4 +1,4 @@
-export type task = {
+export type Task = {
   id: number;
   title: string;
 };

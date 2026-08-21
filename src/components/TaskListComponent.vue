@@ -15,7 +15,7 @@
 
 <script lang="ts">
 	import { Component, Prop, Vue } from 'vue-property-decorator';
-	import { task as taskModel } from '../models/task';
+	import { Task } from '../models/task';
 	import TaskComponent from './TaskComponent.vue';
 	
 	@Component({
@@ -25,6 +25,6 @@
 	})
 
 	export default class TaskList extends Vue {
-		@Prop() public tasks!: taskModel[];
+		@Prop() public tasks!: Task[];
 	}
 </script>
